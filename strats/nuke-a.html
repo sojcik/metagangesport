@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MetaGang - A Side Push (Nuke)</title>
+    <style>
+        body {
+            background-color: #1a1a2e;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .header-controls {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #0f3460;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background-color: #e94560;
+        }
+        a button {
+            background-color: #e94560;
+        }
+        a button:hover {
+            background-color: #c0392b;
+        }
+        .status-panel {
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #e94560;
+            height: 25px;
+            text-align: center;
+        }
+        .map-container {
+            position: relative;
+            width: 800px;
+            height: 800px;
+            background-image: url('https://raw.githubusercontent.com/MurkyYT/cs2-map-icons/main/images/radars/de_nuke_radar_psd.png');
+            background-size: cover;
+            background-position: center;
+            border: 3px solid #0f3460;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: crosshair;
+        }
+        .player {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 1.5s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px black;
+            z-index: 10;
+        }
+        
+        /* Barvy hráčů */
+        #fimaty { background-color: #2ecc71; border: 2px solid #fff; box-shadow: 0 0 5px #2ecc71; }
+        #barunka { background-color: #e74c3c; border: 2px solid #fff; box-shadow: 0 0 5px #e74c3c; }
+        #ondrej { background-color: #3498db; border: 2px solid #fff; box-shadow: 0 0 5px #3498db; }
+        #sojcik { background-color: #9b59b6; border: 2px solid #fff; box-shadow: 0 0 5px #9b59b6; }
+        #splyx { background-color: #f1c40f; border: 2px solid #fff; box-shadow: 0 0 5px #f1c40f; }
+
+        /* Utility */
+        .smoke {
+            position: absolute;
+            width: 0px;
+            height: 0px;
+            background-color: rgba(150, 150, 150, 0.85);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.5s ease-out;
+            z-index: 5;
+        }
+        .smoke.active {
+            width: 85px;
+            height: 85px;
+        }
+        
+        .he-grenade {
+            position: absolute;
+            width: 0px;
+            height: 0px;
+            background-color: rgba(255, 50, 0, 0.8);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.2s ease-out;
+            z-index: 4;
+            opacity: 1;
+        }
+        .he-grenade.active {
+            width: 50px;
+            height: 50px;
+            opacity: 0;
+            transition: width 0.2s ease-out, height 0.2s ease-out, opacity 0.5s ease-in 0.2s;
+        }
+
+        .flashbang {
+            position: absolute;
+            width: 0px;
+            height: 0px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.1s ease-out;
+            z-index: 6;
+            opacity: 1;
+        }
+        .flashbang.active {
+            width: 140px;
+            height: 140px;
+            opacity: 0;
+            transition: width 0.1s ease-out, height 0.1s ease-out, opacity 1.2s ease-in 0.1s;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-controls">
+        <a href="../index.html"><button type="button">← Zpět na mapy</button></a>
+        <div class="controls">
+            <button onclick="startAnimation()">Spustit A Exec</button>
+            <button onclick="resetMap()">Reset</button>
+        </div>
+    </div>
+    
+    <div class="status-panel" id="status">Klikněte do mapy pro automatické zkopírování souřadnic</div>
+
+    <div class="map-container" id="map">
+        <!-- Hráči -->
+        <div class="player" id="barunka" title="Barunka">Barunka</div>
+        <div class="player" id="ondrej" title="Ondřej">Ondřej</div>
+        <div class="player" id="fimaty" title="Fimaty">Fimaty</div>
+        <div class="player" id="sojcik" title="Sojcik">Sojcik</div>
+        <div class="player" id="splyx" title="Splyx">Splyx</div>
+
+        <!-- Utility -->
+        <div class="smoke" id="smoke-heaven"></div>
+        <div class="smoke" id="smoke-main"></div>
+        <div class="he-grenade" id="he-doors"></div>
+        <div class="flashbang" id="flash-site"></div>
+    </div>
+
+    <script>
+        function setStatus(text) {
+            document.getElementById('status').innerText = text;
+        }
+
+        // AUTO-KOPÍROVÁNÍ SOUŘADNIC
+        document.getElementById('map').addEventListener('click', function(e) {
+            const rect = this.getBoundingClientRect();
+            const y = ((e.clientY - rect.top) / rect.height) * 100;
+            const x = ((e.clientX - rect.left) / rect.width) * 100;
+            
+            const copyText = `{ top: ${y.toFixed(1)}, left: ${x.toFixed(1)} }`;
+            navigator.clipboard.writeText(copyText).then(() => {
+                setStatus("Zkopírováno do schránky: " + copyText);
+                setTimeout(() => setStatus("Animace připravena"), 2000);
+            }).catch(() => setStatus("Chyba kopírování: " + copyText));
+        });
+
+        // ==========================================
+        // SOUŘADNICE
+        // ==========================================
+        const coords = {
+            splyx: { 
+                start: { top: 54.0, left: 22.0 },
+                faze1_roof: { top: 50.7, left: 46.7 },
+                faze3_outside: { top: 67.3, left: 57.0 },
+                faze4_flank: { top: 63.7, left: 63.6 }
+            },
+            barunka: { 
+                start: { top: 54.0, left: 22.0 },
+                faze1_roof: { top: 54.0, left: 46.8 },
+                faze1_lobby: { top: 52.3, left: 50.6 },
+                faze3_plant: { top: 51.1, left: 56.9 },
+                faze4_flex: { top: 46.5, left: 57.6 }
+            },
+            fimaty: { 
+                start: { top: 54.0, left: 22.0 },
+                faze1_hut: { top: 53.5, left: 50.9 },
+                faze3_site: { top: 47.2, left: 54.9 },
+                faze4_hold: { top: 53.0, left: 53.4 }
+            },
+            ondrej: { 
+                start: { top: 54.0, left: 22.0 },
+                faze1_doors: { top: 57.0, left: 48.0 },
+                faze3_site: { top: 58.9, left: 56.9 },
+                faze4_hold: { top: 60.5, left: 52.8 }
+            },
+            sojcik: { 
+                start: { top: 54.0, left: 22.0 },
+                faze1_doors: { top: 55.6, left: 45.7 },
+                faze3_site: { top: 61.1, left: 56.9 },
+                faze4_hold: { top: 55.4, left: 55.5 }
+            }
+        };
+
+        const nades = {
+            smokeHeaven: { top: 45.6, left: 62.8 },
+            smokeMain: { top: 61.6, left: 56.9 },
+            heDoors: { top: 58.3, left: 51.8 },
+            flashSite: { top: 52.0, left: 55.0 }
+        };
+
+        function movePlayer(id, loc) {
+            const player = document.getElementById(id);
+            player.style.top = loc.top + '%';
+            player.style.left = loc.left + '%';
+        }
+
+        function triggerNade(id, loc) {
+            const nade = document.getElementById(id);
+            nade.style.top = loc.top + '%';
+            nade.style.left = loc.left + '%';
+            nade.classList.add('active');
+        }
+
+        function clearNades() {
+            document.querySelectorAll('.smoke, .he-grenade, .flashbang').forEach(el => el.classList.remove('active'));
+        }
+
+        function resetMap() {
+            clearTimeout(window.timer1);
+            clearTimeout(window.timer2);
+            clearTimeout(window.timer3);
+            clearTimeout(window.timer4);
+            
+            clearNades();
+            setStatus("Animace resetována.");
+            
+            movePlayer('splyx', coords.splyx.start);
+            movePlayer('barunka', coords.barunka.start);
+            movePlayer('fimaty', coords.fimaty.start);
+            movePlayer('ondrej', coords.ondrej.start);
+            movePlayer('sojcik', coords.sojcik.start);
+        }
+
+        function startAnimation() {
+            resetMap();
+            
+            // FÁZE 1: Rozběh
+            setStatus("Fáze 1: Setup - Splyx a Barunka střecha, zbytek Lobby");
+            movePlayer('splyx', coords.splyx.faze1_roof);
+            movePlayer('barunka', coords.barunka.faze1_roof);
+            movePlayer('fimaty', coords.fimaty.faze1_hut);
+            movePlayer('ondrej', coords.ondrej.faze1_doors);
+            movePlayer('sojcik', coords.sojcik.faze1_doors);
+
+            // Barunka slézá do lobby
+            window.timer1 = setTimeout(() => {
+                movePlayer('barunka', coords.barunka.faze1_lobby);
+            }, 1500);
+
+            // FÁZE 2: Kompletní Utility (Smoky, HE, Flash najednou)
+            window.timer2 = setTimeout(() => {
+                setStatus("Fáze 2: Pop smoků, HE na dveře a okamžitě FLASH na side!");
+                triggerNade('smoke-heaven', nades.smokeHeaven);
+                triggerNade('smoke-main', nades.smokeMain);
+                triggerNade('he-doors', nades.heDoors);
+                triggerNade('flash-site', nades.flashSite);
+            }, 3500);
+
+            // FÁZE 3: Okamžitý vběh (Exec)
+            window.timer3 = setTimeout(() => {
+                setStatus("Fáze 3: PUSH! Všichni vběhnutí do sítě, Barunka plantuje.");
+                
+                movePlayer('fimaty', coords.fimaty.faze3_site);
+                movePlayer('ondrej', coords.ondrej.faze3_site);
+                movePlayer('sojcik', coords.sojcik.faze3_site);
+                
+                setTimeout(() => {
+                    movePlayer('barunka', coords.barunka.faze3_plant);
+                }, 400);
+
+                movePlayer('splyx', coords.splyx.faze3_outside);
+
+            }, 4000); // Vybíhá se hned půl vteřiny po explozi utilit
+
+            // FÁZE 4: Post-plant
+            window.timer4 = setTimeout(() => {
+                setStatus("Fáze 4: Bomba položena. Hráči zaujímají post-plant pozice.");
+                movePlayer('fimaty', coords.fimaty.faze4_hold);
+                movePlayer('ondrej', coords.ondrej.faze4_hold);
+                movePlayer('sojcik', coords.sojcik.faze4_hold);
+                movePlayer('barunka', coords.barunka.faze4_flex);
+                movePlayer('splyx', coords.splyx.faze4_flank);
+            }, 8500);
+        }
+
+        window.onload = resetMap;
+    </script>
+</body>
+</html>
