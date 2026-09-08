@@ -83,12 +83,12 @@
             z-index: 10;
         }
         
-        /* Barvy hráčů */
+        /* Nová, přehlednější ID hráčů */
         #fimaty { background-color: #2ecc71; border: 2px solid #fff; box-shadow: 0 0 5px #2ecc71; }
-        #baruunnkaa { background-color: #e74c3c; border: 2px solid #fff; box-shadow: 0 0 5px #e74c3c; }
-        #thcxd { background-color: #3498db; border: 2px solid #fff; box-shadow: 0 0 5px #3498db; }
+        #barunka { background-color: #e74c3c; border: 2px solid #fff; box-shadow: 0 0 5px #e74c3c; }
+        #ondrej { background-color: #3498db; border: 2px solid #fff; box-shadow: 0 0 5px #3498db; }
         #sojcik { background-color: #9b59b6; border: 2px solid #fff; box-shadow: 0 0 5px #9b59b6; }
-        #dvacet { background-color: #f1c40f; border: 2px solid #fff; box-shadow: 0 0 5px #f1c40f; }
+        #splyx { background-color: #f1c40f; border: 2px solid #fff; box-shadow: 0 0 5px #f1c40f; }
 
         /* Panel úkolů */
         .roles-grid {
@@ -140,11 +140,12 @@
     <div class="status-panel" id="status">Klikněte do mapy pro automatické zkopírování souřadnic</div>
 
     <div class="map-container" id="map">
-        <div class="player" id="baruunnkaa" title="@baruunnkaa">Barunka</div>
-        <div class="player" id="thcxd" title="@__thcxd__">Ondřej</div>
-        <div class="player" id="fimaty" title="@fimaty">Fimaty</div>
-        <div class="player" id="sojcik" title="@sojcik">Sojcik</div>
-        <div class="player" id="dvacet" title="@dvacetnuladevet">Splyx</div>
+        <!-- Původní kolečka s celými jmény -->
+        <div class="player" id="barunka" title="Barunka">Barunka</div>
+        <div class="player" id="ondrej" title="Ondřej">Ondřej</div>
+        <div class="player" id="fimaty" title="Fimaty">Fimaty</div>
+        <div class="player" id="sojcik" title="Sojcik">Sojcik</div>
+        <div class="player" id="splyx" title="Splyx">Splyx</div>
     </div>
 
     <div class="roles-grid">
@@ -217,9 +218,9 @@
             }).catch(() => setStatus("Chyba kopírování. Použijte tyto: " + copyText));
         });
 
-        // CT SOUŘADNICE (Aktualizujte klikáním do mapy)
+        // VAŠE ZAMĚŘENÉ CT SOUŘADNICE
         const coords = {
-            thcxd: { 
+            ondrej: { 
                 start: { top: 45.2, left: 78.3 },
                 default_pos: { top: 65.1, left: 71.8 }
             },
@@ -227,7 +228,7 @@
                 start: { top: 46.1, left: 79.5 },
                 default_pos: { top: 60.2, left: 56.9 }
             },
-            dvacet: { 
+            splyx: { 
                 start: { top: 46.3, left: 79.8 },
                 default_pos: { top: 44.6, left: 55.3 }
             },
@@ -235,7 +236,7 @@
                 start: { top: 45.7, left: 80.3 },
                 default_pos: { top: 36.0, left: 54.9 }
             },
-            baruunnkaa: { 
+            barunka: { 
                 start: { top: 44.9, left: 78.5 },
                 default_pos: { top: 38.8, left: 61.6 }
             }
@@ -249,20 +250,20 @@
 
         function resetMap() {
             setStatus("Hráči na spawnu.");
-            movePlayer('thcxd', coords.thcxd.start);
+            movePlayer('ondrej', coords.ondrej.start);
             movePlayer('sojcik', coords.sojcik.start);
-            movePlayer('dvacet', coords.dvacet.start);
+            movePlayer('splyx', coords.splyx.start);
             movePlayer('fimaty', coords.fimaty.start);
-            movePlayer('baruunnkaa', coords.baruunnkaa.start);
+            movePlayer('barunka', coords.barunka.start);
         }
 
         function startDefault() {
             setStatus("CT Default rozmístěn");
-            movePlayer('thcxd', coords.thcxd.default_pos);
+            movePlayer('ondrej', coords.ondrej.default_pos);
             movePlayer('sojcik', coords.sojcik.default_pos);
-            movePlayer('dvacet', coords.dvacet.default_pos);
+            movePlayer('splyx', coords.splyx.default_pos);
             movePlayer('fimaty', coords.fimaty.default_pos);
-            movePlayer('baruunnkaa', coords.baruunnkaa.default_pos);
+            movePlayer('barunka', coords.barunka.default_pos);
         }
 
         window.onload = resetMap;
