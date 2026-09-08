@@ -23,7 +23,6 @@
             margin-bottom: 40px;
         }
 
-        /* Kontejner pro všechny mapy (připraveno pro přidání Mirage, Inferna atd.) */
         .maps-grid {
             display: flex;
             gap: 30px;
@@ -32,7 +31,6 @@
             max-width: 1000px;
         }
 
-        /* Karta jednotlivé mapy */
         .map-card {
             position: relative;
             width: 350px;
@@ -41,8 +39,8 @@
             overflow: hidden;
             border: 3px solid #0f3460;
             box-shadow: 0 8px 16px rgba(0,0,0,0.4);
-            /* Zástupný obrázek mapy Nuke */
-            background-image: url('https://files.bo3.gg/uploads/news/37626/title_image/960x480-1a13b632e293881da6eb7fdb96752382.webp');
+            /* Zástupný obrázek odstraněn, tahá se to z HTML u každé mapy zvlášť */
+            background-color: #112233; 
             background-size: cover;
             background-position: center;
             transition: transform 0.2s;
@@ -53,7 +51,6 @@
             border-color: #e94560;
         }
 
-        /* Nápis mapy (zmizí při najetí myší) */
         .map-name {
             position: absolute;
             bottom: 15px;
@@ -65,7 +62,6 @@
             transition: opacity 0.3s;
         }
 
-        /* Tmavá vrstva, která se objeví po najetí myší */
         .overlay {
             position: absolute;
             top: 0;
@@ -74,6 +70,7 @@
             height: 100%;
             background-color: rgba(15, 52, 96, 0.9);
             display: flex;
+            flex-direction: column; /* Rozdělí kontejner na řádky pod sebou */
             opacity: 0;
             transition: opacity 0.3s ease-in-out;
         }
@@ -86,34 +83,47 @@
             opacity: 0;
         }
 
-        /* Tlačítka A a B */
+        /* Kontejner pro spodní A/B část */
+        .bottom-half {
+            display: flex;
+            flex: 1;
+            width: 100%;
+        }
+
+        /* Univerzální vzhled pro všechna 3 tlačítka */
         .side-link {
-            flex: 1; /* Rozdělí prostor přesně na poloviny */
+            flex: 1; 
             display: flex;
             align-items: center;
             justify-content: center;
             text-decoration: none;
             color: white;
-            font-size: 48px;
+            font-size: 36px; /* Zmenšeno z 48px, aby to nebylo přeplácané */
             font-weight: bold;
             transition: background-color 0.2s;
         }
 
-        /* Levá strana (A) zčervená při najetí */
+        /* Hover efekty pro jednotlivé sekce */
+        .side-link.ct-site:hover {
+            background-color: rgba(52, 152, 219, 0.7); /* Modrá */
+        }
         .side-link.a-site:hover {
-            background-color: rgba(233, 69, 96, 0.7);
+            background-color: rgba(233, 69, 96, 0.7); /* Červená */
         }
-
-        /* Pravá strana (B) zezelená při najetí */
         .side-link.b-site:hover {
-            background-color: rgba(46, 204, 113, 0.7);
+            background-color: rgba(46, 204, 113, 0.7); /* Zelená */
         }
 
-        /* Oddělovací čára uprostřed */
-        .divider {
-            width: 2px;
+        /* Dělící čáry */
+        .horizontal-divider {
+            width: 100%;
+            height: 2px;
             background-color: rgba(255, 255, 255, 0.2);
+        }
+        .vertical-divider {
+            width: 2px;
             height: 100%;
+            background-color: rgba(255, 255, 255, 0.2);
         }
 
     </style>
@@ -125,21 +135,30 @@
     <div class="maps-grid">
         
         <!-- KARTA MAPY NUKE -->
-        <div class="map-card">
+        <div class="map-card" style="background-image: url('img/nuke.png');">
             <div class="map-name">NUKE</div>
             
             <div class="overlay">
-                <!-- Odkaz na budoucí A Exec -->
-                <a href="strats/nuke-a.html" class="side-link a-site">A</a>
+                <!-- HORNÍ POLOVINA: CT -->
+                <a href="strats/nuke-ct.html" class="side-link ct-site">CT</a>
                 
-                <div class="divider"></div>
+                <div class="horizontal-divider"></div>
                 
-                <!-- Odkaz na váš existující B Push -->
-                <a href="strats/nuke-b.html" class="side-link b-site">B</a>
+                <!-- SPODNÍ POLOVINA: A / B -->
+                <div class="bottom-half">
+                    <a href="strats/nuke-a.html" class="side-link a-site">A</a>
+                    <div class="vertical-divider"></div>
+                    <a href="strats/nuke-b.html" class="side-link b-site">B</a>
+                </div>
             </div>
         </div>
 
-        <!-- Sem můžete do budoucna zkopírovat blok "map-card" pro Mirage, Inferno atd. -->
+        <!-- Příklad pro přidání další mapy v budoucnu:
+        <div class="map-card" style="background-image: url('img/mirage.png');">
+            <div class="map-name">MIRAGE</div>
+            ...
+        </div>
+        -->
 
     </div>
 
