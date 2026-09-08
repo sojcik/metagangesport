@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MetaGang - CT Default Setup (Nuke)</title>
+    <style>
+        body {
+            background-color: #1a1a2e;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .header-controls {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #0f3460;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background-color: #e94560;
+        }
+        a button {
+            background-color: #e94560;
+        }
+        a button:hover {
+            background-color: #c0392b;
+        }
+        .status-panel {
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #e94560;
+            height: 25px;
+            text-align: center;
+        }
+        .map-container {
+            position: relative;
+            width: 800px;
+            height: 800px;
+            background-image: url('https://raw.githubusercontent.com/MurkyYT/cs2-map-icons/main/images/radars/de_nuke_radar_psd.png');
+            background-size: cover;
+            background-position: center;
+            border: 3px solid #0f3460;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: crosshair;
+        }
+        .player {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 1.5s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px black;
+            z-index: 10;
+        }
+        
+        /* Barvy hráčů */
+        #fimaty { background-color: #2ecc71; border: 2px solid #fff; box-shadow: 0 0 5px #2ecc71; }
+        #baruunnkaa { background-color: #e74c3c; border: 2px solid #fff; box-shadow: 0 0 5px #e74c3c; }
+        #thcxd { background-color: #3498db; border: 2px solid #fff; box-shadow: 0 0 5px #3498db; }
+        #sojcik { background-color: #9b59b6; border: 2px solid #fff; box-shadow: 0 0 5px #9b59b6; }
+        #dvacet { background-color: #f1c40f; border: 2px solid #fff; box-shadow: 0 0 5px #f1c40f; }
+
+        /* Panel úkolů */
+        .roles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1000px;
+            margin-top: 30px;
+        }
+        .role-card {
+            background-color: #0f3460;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        .role-card h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .role-indicator {
+            width: 15px; height: 15px; border-radius: 50%; display: inline-block;
+        }
+        .role-card ul {
+            padding-left: 20px;
+            margin: 0;
+            line-height: 1.6;
+        }
+        .role-card li {
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-controls">
+        <a href="../index.html"><button type="button">← Zpět na mapy</button></a>
+        <div class="controls">
+            <button onclick="startDefault()">Rozmístit CT Default</button>
+            <button onclick="resetMap()">Zpět na CT Spawn</button>
+        </div>
+    </div>
+    
+    <div class="status-panel" id="status">Klikněte do mapy pro automatické zkopírování souřadnic</div>
+
+    <div class="map-container" id="map">
+        <div class="player" id="baruunnkaa" title="@baruunnkaa">Barunka</div>
+        <div class="player" id="thcxd" title="@__thcxd__">Ondřej</div>
+        <div class="player" id="fimaty" title="@fimaty">Fimaty</div>
+        <div class="player" id="sojcik" title="@sojcik">Sojcik</div>
+        <div class="player" id="dvacet" title="@dvacetnuladevet">Splyx</div>
+    </div>
+
+    <div class="roles-grid">
+        <!-- O -->
+        <div class="role-card">
+            <h3><span class="role-indicator" style="background-color: #3498db;"></span> Ondřej (Outside)</h3>
+            <ul>
+                <li>Drží outside+main</li>
+                <li>Rotace A přes main nebo heaven</li>
+                <li>Rotace B přes secret nebo vent</li>
+                <li>Molly + He za redku při rushování nebo odsmokování</li>
+            </ul>
+        </div>
+        <!-- S -->
+        <div class="role-card">
+            <h3><span class="role-indicator" style="background-color: #9b59b6;"></span> Sojcik (Single door A)</h3>
+            <ul>
+                <li>Drží single door A + A side + rotace na outside</li>
+                <li>Rotace B přes ventu nebo secret</li>
+                <li>Molly + He outside nebo single doory</li>
+            </ul>
+        </div>
+        <!-- D -->
+        <div class="role-card">
+            <h3><span class="role-indicator" style="background-color: #f1c40f;"></span> Splyx (Heaven)</h3>
+            <ul>
+                <li>Drží A HUT + A side + Outside při pushování</li>
+                <li>Rotace B přes ventu nebo rampu</li>
+                <li>Molly + He Hut nebo single doory</li>
+            </ul>
+        </div>
+        <!-- F -->
+        <div class="role-card">
+            <h3><span class="role-indicator" style="background-color: #2ecc71;"></span> Fimaty (Rampa vytažená)</h3>
+            <ul>
+                <li>Drží rampu z vytaženější pozice (blíž k vending roomě)</li>
+                <li>Rotace A přes lobby</li>
+                <li>Rotace B přes rampu nebo ventu</li>
+                <li>Při stucknutí enemy v outsidu jde do zad přes lobby</li>
+                <li>Molly + He k zastavení rushe na rampu (hází první)</li>
+            </ul>
+        </div>
+        <!-- B -->
+        <div class="role-card">
+            <h3><span class="role-indicator" style="background-color: #e74c3c;"></span> Barunka (Rampa zatažená)</h3>
+            <ul>
+                <li>Drží rampu víc zataženě (poblíž under heaven)</li>
+                <li>Rotace A přes heaven</li>
+                <li>Rotace B přes rampu</li>
+                <li>Při pushování secretu rotace do secretu</li>
+                <li>Molly + He k zastavení rushe na rampu (hází po skončení molly od fimata) nebo situačně v secretu</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function setStatus(text) {
+            document.getElementById('status').innerText = text;
+        }
+
+        document.getElementById('map').addEventListener('click', function(e) {
+            const rect = this.getBoundingClientRect();
+            const y = ((e.clientY - rect.top) / rect.height) * 100;
+            const x = ((e.clientX - rect.left) / rect.width) * 100;
+            
+            const copyText = `{ top: ${y.toFixed(1)}, left: ${x.toFixed(1)} }`;
+            navigator.clipboard.writeText(copyText).then(() => {
+                setStatus("Zkopírováno do schránky: " + copyText);
+                setTimeout(() => setStatus("Animace připravena"), 2000);
+            }).catch(() => setStatus("Chyba kopírování. Použijte tyto: " + copyText));
+        });
+
+        // CT SOUŘADNICE (Aktualizujte klikáním do mapy)
+        const coords = {
+            thcxd: { 
+                start: { top: 45.2, left: 78.3 },
+                default_pos: { top: 65.1, left: 71.8 }
+            },
+            sojcik: { 
+                start: { top: 46.1, left: 79.5 },
+                default_pos: { top: 60.2, left: 56.9 }
+            },
+            dvacet: { 
+                start: { top: 46.3, left: 79.8 },
+                default_pos: { top: 44.6, left: 55.3 }
+            },
+            fimaty: { 
+                start: { top: 45.7, left: 80.3 },
+                default_pos: { top: 36.0, left: 54.9 }
+            },
+            baruunnkaa: { 
+                start: { top: 44.9, left: 78.5 },
+                default_pos: { top: 38.8, left: 61.6 }
+            }
+        };
+
+        function movePlayer(id, loc) {
+            const player = document.getElementById(id);
+            player.style.top = loc.top + '%';
+            player.style.left = loc.left + '%';
+        }
+
+        function resetMap() {
+            setStatus("Hráči na spawnu.");
+            movePlayer('thcxd', coords.thcxd.start);
+            movePlayer('sojcik', coords.sojcik.start);
+            movePlayer('dvacet', coords.dvacet.start);
+            movePlayer('fimaty', coords.fimaty.start);
+            movePlayer('baruunnkaa', coords.baruunnkaa.start);
+        }
+
+        function startDefault() {
+            setStatus("CT Default rozmístěn");
+            movePlayer('thcxd', coords.thcxd.default_pos);
+            movePlayer('sojcik', coords.sojcik.default_pos);
+            movePlayer('dvacet', coords.dvacet.default_pos);
+            movePlayer('fimaty', coords.fimaty.default_pos);
+            movePlayer('baruunnkaa', coords.baruunnkaa.default_pos);
+        }
+
+        window.onload = resetMap;
+    </script>
+</body>
+</html>
