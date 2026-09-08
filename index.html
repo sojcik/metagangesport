@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MetaGang - Taktický Rozcestník</title>
+    <style>
+        body {
+            background-color: #1a1a2e;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        h1 {
+            color: #e94560;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 40px;
+        }
+
+        /* Kontejner pro všechny mapy (připraveno pro přidání Mirage, Inferna atd.) */
+        .maps-grid {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 1000px;
+        }
+
+        /* Karta jednotlivé mapy */
+        .map-card {
+            position: relative;
+            width: 350px;
+            height: 200px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 3px solid #0f3460;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+            /* Zástupný obrázek mapy Nuke */
+            background-image: url('https://files.bo3.gg/uploads/news/37626/title_image/960x480-1a13b632e293881da6eb7fdb96752382.webp');
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.2s;
+        }
+
+        .map-card:hover {
+            transform: translateY(-5px);
+            border-color: #e94560;
+        }
+
+        /* Nápis mapy (zmizí při najetí myší) */
+        .map-name {
+            position: absolute;
+            bottom: 15px;
+            left: 20px;
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.9);
+            transition: opacity 0.3s;
+        }
+
+        /* Tmavá vrstva, která se objeví po najetí myší */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(15, 52, 96, 0.9);
+            display: flex;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .map-card:hover .overlay {
+            opacity: 1;
+        }
+        
+        .map-card:hover .map-name {
+            opacity: 0;
+        }
+
+        /* Tlačítka A a B */
+        .side-link {
+            flex: 1; /* Rozdělí prostor přesně na poloviny */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: white;
+            font-size: 48px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        /* Levá strana (A) zčervená při najetí */
+        .side-link.a-site:hover {
+            background-color: rgba(233, 69, 96, 0.7);
+        }
+
+        /* Pravá strana (B) zezelená při najetí */
+        .side-link.b-site:hover {
+            background-color: rgba(46, 204, 113, 0.7);
+        }
+
+        /* Oddělovací čára uprostřed */
+        .divider {
+            width: 2px;
+            background-color: rgba(255, 255, 255, 0.2);
+            height: 100%;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>MetaGang Taktiky</h1>
+
+    <div class="maps-grid">
+        
+        <!-- KARTA MAPY NUKE -->
+        <div class="map-card">
+            <div class="map-name">NUKE</div>
+            
+            <div class="overlay">
+                <!-- Odkaz na budoucí A Exec -->
+                <a href="nuke-a.html" class="side-link a-site">A</a>
+                
+                <div class="divider"></div>
+                
+                <!-- Odkaz na váš existující B Push -->
+                <a href="nuke-b.html" class="side-link b-site">B</a>
+            </div>
+        </div>
+
+        <!-- Sem můžete do budoucna zkopírovat blok "map-card" pro Mirage, Inferno atd. -->
+
+    </div>
+
+</body>
+</html>
