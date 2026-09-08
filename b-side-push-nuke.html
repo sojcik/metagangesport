@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MetaGang - CS2 B Side Push (Taktická tabule)</title>
+    <style>
+        body {
+            background-color: #1a1a2e;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #0f3460;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background-color: #e94560;
+        }
+        .status-panel {
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #e94560;
+            height: 25px;
+            text-align: center;
+        }
+        .map-container {
+            position: relative;
+            width: 800px;
+            height: 800px;
+            background-image: url('https://raw.githubusercontent.com/MurkyYT/cs2-map-icons/main/images/radars/de_nuke_radar_psd.png');
+            background-size: cover;
+            background-position: center;
+            border: 3px solid #0f3460;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: crosshair;
+            transition: background-image 0.5s ease-in-out;
+        }
+        .player {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 1.5s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px black;
+            z-index: 10;
+        }
+        .smoke {
+            position: absolute;
+            width: 0px;
+            height: 0px;
+            background-color: rgba(150, 150, 150, 0.8);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.5s ease-out;
+            z-index: 5;
+        }
+        .smoke.active {
+            width: 85px;
+            height: 85px;
+        }
+        .molly {
+            position: absolute;
+            width: 0px;
+            height: 0px;
+            background-color: rgba(255, 100, 0, 0.6);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.5s ease-out;
+            z-index: 4;
+        }
+        .molly.active {
+            width: 65px;
+            height: 65px;
+        }
+        #fimaty { background-color: #2ecc71; border: 2px solid #fff; box-shadow: 0 0 5px #2ecc71; }
+        #baruunnkaa { background-color: #e74c3c; border: 2px solid #fff; box-shadow: 0 0 5px #e74c3c; }
+        #thcxd { background-color: #3498db; border: 2px solid #fff; box-shadow: 0 0 5px #3498db; }
+        #sojcik { background-color: #9b59b6; border: 2px solid #fff; box-shadow: 0 0 5px #9b59b6; }
+        #dvacet { background-color: #f1c40f; border: 2px solid #fff; box-shadow: 0 0 5px #f1c40f; }
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <button onclick="startAnimation()">Spustit Taktiku</button>
+        <button onclick="resetMap()">Reset</button>
+    </div>
+    
+    <div class="status-panel" id="status">Klikněte do mapy pro automatické zkopírování souřadnic</div>
+
+    <div class="map-container" id="map">
+        <!-- Hráči -->
+        <div class="player" id="baruunnkaa" title="@baruunnkaa">Barunka</div>
+        <div class="player" id="thcxd" title="@__thcxd__">Ondřej</div>
+        <div class="player" id="fimaty" title="@fimaty">Fimaty</div>
+        <div class="player" id="sojcik" title="@sojcik">Sojcik</div>
+        <div class="player" id="dvacet" title="@dvacetnuladevet">Splyx</div>
+
+        <!-- Utility -->
+        <div class="smoke" id="smoke-main"></div>
+        <div class="smoke" id="smoke-garage"></div>
+        <div class="smoke" id="smoke-secret"></div>
+        <div class="molly" id="molly-secret"></div>
+    </div>
+
+    <script>
+        // Odkazy na mapy pater
+        const mapUpper = "url('https://raw.githubusercontent.com/MurkyYT/cs2-map-icons/main/images/radars/de_nuke_radar_psd.png')";
+        const mapLower = "url('https://raw.githubusercontent.com/MurkyYT/cs2-map-icons/main/images/radars/de_nuke_lower_radar_psd.png')";
+
+        function setStatus(text) {
+            document.getElementById('status').innerText = text;
+        }
+
+        // AUTO-KOPÍROVÁNÍ SOUŘADNIC DO SCHRÁNKY
+        document.getElementById('map').addEventListener('click', function(e) {
+            const rect = this.getBoundingClientRect();
+            const y = ((e.clientY - rect.top) / rect.height) * 100;
+            const x = ((e.clientX - rect.left) / rect.width) * 100;
+            
+            const copyText = `{ top: ${y.toFixed(1)}, left: ${x.toFixed(1)} }`;
+            
+            navigator.clipboard.writeText(copyText).then(() => {
+                setStatus("Zkopírováno do schránky: " + copyText);
+                setTimeout(() => setStatus("Animace připravena"), 2000);
+            }).catch(err => {
+                setStatus("Chyba kopírování. Použijte tyto: " + copyText);
+            });
+        });
+
+        // INDIVIDUÁLNÍ SOUŘADNICE PRO KAŽDÉHO HRÁČE A FÁZI
+        const coords = {
+            baruunnkaa: {
+                start: { top: 54.0, left: 22.0 },
+                faze1_outside: { top: 54.6, left: 29.7 },
+                faze2_secret: { top: 74.2, left: 68.3 },
+                faze3_plant: { top: 58.0, left: 55.0 }, 
+                faze4_hold: { top: 58.6, left: 51.4 }
+            },
+            thcxd: {
+                start: { top: 52.0, left: 20.0 },
+                faze1_outside: { top: 57.8, left: 37.7 },
+                faze2_secret: { top: 74.2, left: 68.3 }, 
+                faze3_site: { top: 52.0, left: 62.0 }, 
+                faze4_hold: { top: 46.0, left: 63.1 }
+            },
+            fimaty: {
+                start: { top: 56.0, left: 20.0 },
+                faze1_outside: { top: 56.1, left: 30.7 },
+                faze2_secret: { top: 74.2, left: 68.3 },
+                faze3_site: { top: 60.0, left: 58.0 }, 
+                faze4_hold: { top: 59.6, left: 59.0 }
+            },
+            sojcik: {
+                start: { top: 54.0, left: 18.0 },
+                faze1_outside: { top: 55.2, left: 37.7 },
+                faze2_secret: { top: 74.2, left: 68.3 },
+                faze3_site: { top: 65.0, left: 62.0 }, 
+                faze4_hold: { top: 65.0, left: 62.0 } 
+            },
+            dvacet: {
+                start: { top: 54.0, left: 25.0 },
+                faze1_lobby: { top: 53.7, left: 42.7 },
+                faze2_hold: { top: 55.5, left: 49.1 },
+                faze3_flank: { top: 39.3, left: 55.8 },
+                faze4_hold: { top: 42.0, left: 55.0 } 
+            }
+        };
+
+        const nades = {
+            smokeMain: { top: 65.7, left: 61.6 },
+            smokeGarage: { top: 67.3, left: 63.8 },
+            smokeSecretFar: { top: 71.7, left: 63.8 },
+            mollySecret: { top: 74.1, left: 69.2 }
+        };
+
+        function movePlayer(id, loc) {
+            const player = document.getElementById(id);
+            player.style.top = loc.top + '%';
+            player.style.left = loc.left + '%';
+        }
+
+        function triggerNade(id, loc) {
+            const nade = document.getElementById(id);
+            nade.style.top = loc.top + '%';
+            nade.style.left = loc.left + '%';
+            nade.classList.add('active');
+        }
+
+        function clearNades() {
+            document.querySelectorAll('.smoke, .molly').forEach(el => el.classList.remove('active'));
+        }
+
+        function resetMap() {
+            clearTimeout(window.animTimer1);
+            clearTimeout(window.animTimer2);
+            clearTimeout(window.animTimer3);
+            
+            clearNades();
+            document.getElementById('map').style.backgroundImage = mapUpper;
+            setStatus("Animace resetována.");
+            
+            movePlayer('baruunnkaa', coords.baruunnkaa.start);
+            movePlayer('thcxd', coords.thcxd.start);
+            movePlayer('fimaty', coords.fimaty.start);
+            movePlayer('sojcik', coords.sojcik.start);
+            movePlayer('dvacet', coords.dvacet.start);
+        }
+
+        function startAnimation() {
+            resetMap();
+            
+            // FÁZE 1
+            setStatus("Fáze 1: Outside setup, Dvacet do Lobby");
+            movePlayer('baruunnkaa', coords.baruunnkaa.faze1_outside);
+            movePlayer('thcxd', coords.thcxd.faze1_outside);
+            movePlayer('fimaty', coords.fimaty.faze1_outside);
+            movePlayer('sojcik', coords.sojcik.faze1_outside);
+            movePlayer('dvacet', coords.dvacet.faze1_lobby);
+
+            // FÁZE 2
+            window.animTimer1 = setTimeout(() => {
+                setStatus("Fáze 2: Smokewall a push Secretu!");
+                triggerNade('smoke-main', nades.smokeMain);
+                triggerNade('smoke-garage', nades.smokeGarage);
+                triggerNade('smoke-secret', nades.smokeSecretFar);
+                
+                setTimeout(() => {
+                    movePlayer('baruunnkaa', coords.baruunnkaa.faze2_secret);
+                    movePlayer('thcxd', coords.thcxd.faze2_secret);
+                    movePlayer('fimaty', coords.fimaty.faze2_secret);
+                    movePlayer('sojcik', coords.sojcik.faze2_secret);
+                    movePlayer('dvacet', coords.dvacet.faze2_hold);
+                    triggerNade('molly-secret', nades.mollySecret);
+                }, 1000);
+            }, 3500);
+
+            // FÁZE 3
+            window.animTimer2 = setTimeout(() => {
+                setStatus("Fáze 3: Otevření B plantu");
+                document.getElementById('map').style.backgroundImage = mapLower; 
+                clearNades(); // ZDE SE SMAŽOU VŠECHNY SMOKY A MOLLY PŘI ZMĚNĚ PATRA
+                
+                movePlayer('baruunnkaa', coords.baruunnkaa.faze3_plant);
+                movePlayer('thcxd', coords.thcxd.faze3_site);
+                movePlayer('fimaty', coords.fimaty.faze3_site);
+                movePlayer('sojcik', coords.sojcik.faze3_site);
+                movePlayer('dvacet', coords.dvacet.faze3_flank); 
+            }, 9000);
+
+            // FÁZE 4
+            window.animTimer3 = setTimeout(() => {
+                setStatus("Fáze 4: Post-plant zajištění");
+                movePlayer('baruunnkaa', coords.baruunnkaa.faze4_hold); 
+                movePlayer('thcxd', coords.thcxd.faze4_hold); 
+                movePlayer('fimaty', coords.fimaty.faze4_hold); 
+                movePlayer('sojcik', coords.sojcik.faze4_hold); 
+                movePlayer('dvacet', coords.dvacet.faze4_hold);
+            }, 14000); 
+        }
+
+        window.onload = resetMap;
+    </script>
+</body>
+</html>
